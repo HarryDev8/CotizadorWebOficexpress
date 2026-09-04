@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador OficexPress Technology</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+            --text: #0f172a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Encabezado con Logo */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            max-height: 75px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.8rem;
+        }
+
+        .quote-num-input {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            width: 160px;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        /* Reorganización 2x2 del cliente */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-group label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #475569;
+        }
+
+        .field-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #ffffff;
+        }
+
+        /* Barra de Modo de Cotización */
+        .mode-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .mode-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Cuadro de Diagnóstico con Colores */
+        .diagnostic-box {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.92rem;
+            line-height: 1.4;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .diag-green {
+            background-color: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .diag-yellow {
+            background-color: #fef9c3;
+            border: 1px solid #fde047;
+            color: #854d0e;
+        }
+
+        .diag-red {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        /* Botones de Acción */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+        }
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .btn-print {
+            background-color: #059669;
+        }
+        .btn-print:hover {
+            background-color: #047857;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Tabla de Productos */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--primary-dark);
+            color: white;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+        }
+
+        .input-table {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px 7px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .number-col {
+            text-align: right;
+        }
+
+        /* Métodos de Pago y Cláusulas Legales */
+        .payment-methods {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .payment-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .clauses-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .totals-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .totals-table {
+            width: 350px;
+        }
+
+        .totals-table td {
+            padding: 8px 12px;
+        }
+
+        .totals-table .total-row {
+            font-weight: bold;
+            background-color: #f1f5f9;
+            font-size: 1.1rem;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        /* --- ESTILOS EXCLUSIVOS PARA IMPRESIÓN (PDF) --- */
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+                margin: 0;
+                color: #000000;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .no-print, 
+            .mode-bar, 
+            .diagnostic-box, 
+            .action-bar, 
+            .col-dist, 
+            .col-flete, 
+            .col-margen, 
+            .col-action, 
+            .payment-methods {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .logo-img {
+                max-height: 85px;
+            }
+
+            .quote-num-input, 
+            .header-grid input, 
+            .input-table,
+            .clauses-grid input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                font-size: 0.95rem !important;
+            }
+
+            .header-grid {
+                background: transparent;
+                border: 1px solid #cbd5e1;
+                padding: 10px;
+            }
+
+            .clauses-grid {
+                border: 1px solid #cbd5e1;
+                background: transparent;
+                padding: 10px;
+            }
+
+            th {
+                background-color: #f1f5f9 !important;
+                color: #000000 !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            td {
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Encabezado con Logo OficexPress -->
+    <div class="header-top">
+        <div class="logo-container">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAtGVYSWZJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAAAAEgEFAAEAAABeAAAAMgEDAAEAAAABAAAAFCEDAAEAAAABAAAAAJAHAAAEAAAAKAAMACgAAAAgAAAAAQAAAAEAAAABAAAAAR11/9sAQwAGBAUGBQQGBgUGBwcGCAoQCgoJCQoUDg8MEBcUGBAXFBYWGh0lHx0aHx0XFiceJSAhJh0dHxceIisjIicpICEh/9sAQwEHBwcKC40QDAwQIB4WGh4hISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEh/8AAEQgBSAEsAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNScgFX4Q8OQRkqJwcOJzdIWGh4C2OD5ORKO00RkcGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgsQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNScgFX4Q8OQRkqJwcOJzdIWGh4C2OD5ORKO00RkcGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vHy8/T19vf4+fr/2gAMAw00header_end" alt="OficexPress Technology" class="logo-img">
+        </div>
+        <div class="title-container">
+            <h1>Cotización # <input type="text" id="quoteNum" class="quote-num-input" placeholder="0001" onchange="saveSnapshot()"></h1>
+        </div>
+    </div>
+
+    <!-- Datos del Cliente en matriz 2x2 -->
+    <div class="header-grid">
+        <div class="field-group">
+            <label for="ruc">RUC / C.I.:</label>
+            <input type="text" id="ruc" placeholder="Ej: 1790000000001" onchange="saveSnapshot()">
+        </div>
+        <div class="field-group">
+            <label for="atencion">Atención (Empresa / Persona):</label>
+            <input type="text" id="atencion" placeholder="Ej: Corporación ABC" onchange="saveSnapshot()">
+        </div>
+        <div class="field-group">
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" onchange="saveSnapshot()">
+        </div>
+        <div class="field-group">
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" placeholder="Ej: Av. Amazonas N24-18" onchange="saveSnapshot()">
+        </div>
+    </div>
+
+    <!-- Barra de Conmutación de Modo -->
+    <div class="mode-bar no-print">
+        <span style="font-weight: bold; color: var(--primary-dark);">Estrategia de Cotización:</span>
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btnAuto" onclick="setMode('auto')">🤖 Modo Automático</button>
+            <button class="mode-btn" id="btnManual" onclick="setMode('manual')">✏️ Modo Manual</button>
+        </div>
+    </div>
+
+    <!-- Cuadro Explicativo Dinámico (Solo Activo en Modo Manual) -->
+    <div id="diagnosticBox" class="diagnostic-box"></div>
+
+    <!-- Barra de Botones de Acción -->
+    <div class="action-bar no-print">
+        <button class="btn" onclick="addRow()">+ Agregar Producto</button>
+        <button class="btn btn-secondary" onclick="undo()">↩ Deshacer</button>
+        <button class="btn btn-print" onclick="triggerPrint()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <table id="quoteTable">
+        <thead>
+            <tr>
+                <th style="width: 12%;">N° de Parte</th>
+                <th style="width: 28%;">Descripción</th>
+                <th style="width: 11%;">Tipo</th>
+                <th style="width: 6%;">Cant.</th>
+                <th class="col-dist" style="width: 11%;">Valor Dist. ($)</th>
+                <th class="col-flete" style="width: 8%;">Flete ($)</th>
+                <th class="col-margen" style="width: 8%;">Margen %</th>
+                <th style="width: 8%;">Val. Unit. ($)</th>
+                <th style="width: 8%;">Subtotal ($)</th>
+                <th class="col-action no-print" style="width: 3%;"></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Filas dinámicas -->
+        </tbody>
+    </table>
+
+    <!-- Selector de Método de Pago -->
+    <div class="payment-methods no-print">
+        <label style="font-weight: bold; color: var(--primary-dark);">Método de Pago Seleccionado:</label>
+        <div class="payment-options">
+            <label><input type="radio" name="payment" value="transferencia" checked onchange="calculateQuote(); saveSnapshot();"> Transferencia / Depósito</label>
+            <label><input type="radio" name="payment" value="tarjeta" onchange="calculateQuote(); saveSnapshot();"> Tarjeta de Crédito (Payphone)</label>
+            <label><input type="radio" name="payment" value="credito30" onchange="calculateQuote(); saveSnapshot();"> Crédito 30 días (+2.5% Financiamiento)</label>
+            <label><input type="radio" name="payment" value="credito60" onchange="calculateQuote(); saveSnapshot();"> Crédito 60 días (+5.0% Financiamiento)</label>
+        </div>
+    </div>
+
+    <!-- Cláusulas Comerciales Legales -->
+    <div class="clauses-grid">
+        <div class="field-group">
+            <label>Validez de la Oferta:</label>
+            <input type="text" id="validezOferta" value="5 Días Hábiles" onchange="saveSnapshot()">
+        </div>
+        <div class="field-group">
+            <label>Tiempo de Entrega:</label>
+            <input type="text" id="tiempoEntrega" value="Inmediata / 24-48 Horas" onchange="saveSnapshot()">
+        </div>
+        <div class="field-group">
+            <label>Garantía de Equipos:</label>
+            <input type="text" id="garantiaTexto" value="1 Año Contra Defectos de Fábrica" onchange="saveSnapshot()">
+        </div>
+    </div>
+
+    <!-- Forma de Pago impresa en PDF -->
+    <div class="print-only" style="margin-top: 15px; font-size: 0.9rem;">
+        <strong>Forma de Pago:</strong> <span id="paymentPrintText">Transferencia / Depósito</span>
+    </div>
+
+    <!-- Totales -->
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr>
+                <td>Subtotal de Venta:</td>
+                <td class="number-col" id="subtotalVenta">$0.00</td>
+            </tr>
+            <tr>
+                <td>IVA (15%):</td>
+                <td class="number-col" id="ivaVenta">$0.00</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTAL:</td>
+                <td class="number-col" id="totalVenta">$0.00</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="print-only" style="margin-top: 25px; font-size: 0.8rem; color: #475569; text-align: center; border-top: 1px solid #cbd5e1; padding-top: 10px;">
+        <em>Precios y disponibilidad de stock sujetos a confirmación al momento de la orden de compra. Documento formal emitido por OficexPress Technology.</em>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'auto'; // 'auto' o 'manual'
+    let historyStack = [];
+
+    document.getElementById('fecha').valueAsDate = new Date();
+
+    window.onload = function() {
+        addRow(false);
+        saveSnapshot();
+    };
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btnAuto').classList.toggle('active', mode === 'auto');
+        document.getElementById('btnManual').classList.toggle('active', mode === 'manual');
+        
+        const diagBox = document.getElementById('diagnosticBox');
+        diagBox.style.display = (mode === 'manual') ? 'block' : 'none';
+
+        calculateQuote();
+        saveSnapshot();
+    }
+
+    function addRow(triggerSnapshot = true) {
+        const tbody = document.getElementById('tableBody');
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td><input type="text" class="input-table parte-val" onchange="saveSnapshot()"></td>
+            <td><input type="text" class="input-table desc-val" onchange="saveSnapshot()"></td>
+            <td>
+                <select class="input-table tipo-val" onchange="calculateQuote(); saveSnapshot();">
+                    <option value="hardware">Hardware</option>
+                    <option value="software">Software</option>
+                    <option value="servicio">Servicio</option>
+                </select>
+            </td>
+            <td><input type="number" class="input-table cant-val number-col" value="1" min="1" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+            <td class="col-dist"><input type="number" class="input-table dist-val number-col" value="0.00" step="0.01" min="0" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+            <td class="col-flete"><input type="number" class="input-table flete-val number-col" value="0.00" step="0.01" min="0" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+            <td class="col-margen"><input type="number" class="input-table margin-input number-col" value="20.00" step="0.5" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+            <td class="number-col unit-cell" style="font-weight: bold;">$0.00</td>
+            <td class="number-col subtotal-cell" style="font-weight: bold;">$0.00</td>
+            <td class="col-action no-print"><button class="btn btn-danger" onclick="removeRow(this)">X</button></td>
+        `;
+        
+        tbody.appendChild(row);
+        calculateQuote();
+        if (triggerSnapshot) saveSnapshot();
+    }
+
+    function removeRow(btn) {
+        const tbody = document.getElementById('tableBody');
+        if (tbody.rows.length > 1) {
+            btn.closest('tr').remove();
+            calculateQuote();
+            saveSnapshot();
+        } else {
+            alert("La cotización debe contener al menos un producto.");
+        }
+    }
+
+    function calculateQuote() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        let totalHwLandedCost = 0;
+        let hwItemsCount = 0;
+        let totalItemsCount = 0;
+
+        // Paso 1: Acumular costo landed de hardware y conteos
+        rows.forEach(row => {
+            const cant = parseFloat(row.querySelector('.cant-val').value) || 0;
+            const distVal = parseFloat(row.querySelector('.dist-val').value) || 0;
+            const fleteVal = parseFloat(row.querySelector('.flete-val').value) || 0;
+            const tipo = row.querySelector('.tipo-val').value;
+
+            const landedCostUnit = distVal + fleteVal + (distVal * 0.015);
+            totalItemsCount += cant;
+
+            if (tipo === 'hardware') {
+                totalHwLandedCost += (landedCostUnit * cant);
+                hwItemsCount += cant;
+            }
+        });
+
+        const paymentRadio = document.querySelector('input[name="payment"]:checked');
+        const paymentMethod = paymentRadio ? paymentRadio.value : 'transferencia';
+        
+        const paymentTextMap = {
+            'transferencia': 'Transferencia / Depósito',
+            'tarjeta': 'Tarjeta de Crédito (Payphone)',
+            'credito30': 'Crédito a 30 días',
+            'credito60': 'Crédito a 60 días'
+        };
+        document.getElementById('paymentPrintText').innerText = paymentTextMap[paymentMethod];
+
+        let totalSubtotalVenta = 0;
+        let manualMarginsSum = 0;
+        let rowCount = 0;
+
+        // Paso 2: Calcular margen y precio fila por fila
+        rows.forEach(row => {
+            rowCount++;
+            const cant = parseFloat(row.querySelector('.cant-val').value) || 0;
+            const distVal = parseFloat(row.querySelector('.dist-val').value) || 0;
+            const fleteVal = parseFloat(row.querySelector('.flete-val').value) || 0;
+            const tipo = row.querySelector('.tipo-val').value;
+            const marginInput = row.querySelector('.margin-input');
+
+            const landedCostUnit = distVal + fleteVal + (distVal * 0.015);
+            let margin = 0;
+
+            if (currentMode === 'auto') {
+                marginInput.readOnly = true;
+                marginInput.style.backgroundColor = '#f1f5f9';
+
+                if (tipo === 'software') {
+                    margin = 0.40; // 40% protegido
+                } else if (tipo === 'servicio') {
+                    margin = 0.50; // 50% protegido
+                } else {
+                    // Hardware
+                    if (totalItemsCount === 1) {
+                        margin = (landedCostUnit >= 500) ? 0.12 : 0.20;
+                    } else {
+                        // Escalafón Progresivo Marginal
+                        if (totalHwLandedCost <= 0) {
+                            margin = 0.15;
+                        } else {
+                            const p1 = Math.min(totalHwLandedCost, 1500);
+                            const p2 = Math.max(0, Math.min(totalHwLandedCost - 1500, 3500));
+                            const p3 = Math.max(0, Math.min(totalHwLandedCost - 5000, 10000));
+                            const p4 = Math.max(0, totalHwLandedCost - 15000);
+
+                            const pvpTotalHw = (p1 / 0.85) + (p2 / 0.89) + (p3 / 0.92) + (p4 / 0.95);
+                            margin = (pvpTotalHw - totalHwLandedCost) / pvpTotalHw;
+                        }
+                    }
+                }
+
+                if (paymentMethod === 'credito30') margin += 0.025;
+                if (paymentMethod === 'credito60') margin += 0.050;
+
+                marginInput.value = (margin * 100).toFixed(2);
+            } else {
+                // Modo Manual
+                marginInput.readOnly = false;
+                marginInput.style.backgroundColor = '#ffffff';
+                margin = (parseFloat(marginInput.value) || 0) / 100;
+            }
+
+            manualMarginsSum += (margin * 100);
+
+            // PVP Unitario con Margen Neto sobre landed cost
+            let pvpUnit = 0;
+            if (margin < 1 && landedCostUnit > 0) {
+                pvpUnit = landedCostUnit / (1 - margin);
+            }
+
+            // Recargo Payphone
+            if (paymentMethod === 'tarjeta' && pvpUnit > 0) {
+                pvpUnit = pvpUnit / (1 - 0.0575);
+            }
+
+            const rowSubtotal = pvpUnit * cant;
+            totalSubtotalVenta += rowSubtotal;
+
+            row.querySelector('.unit-cell').innerText = '$' + pvpUnit.toFixed(2);
+            row.querySelector('.subtotal-cell').innerText = '$' + rowSubtotal.toFixed(2);
+        });
+
+        // Paso 3: Evaluar Diagnóstico en Modo Manual
+        if (currentMode === 'manual') {
+            const avgMargin = rowCount > 0 ? (manualMarginsSum / rowCount) : 0;
+            updateDiagnosticBox(avgMargin, paymentMethod);
+        }
+
+        // Paso 4: Totales Finales
+        const iva = totalSubtotalVenta * 0.15;
+        const total = totalSubtotalVenta + iva;
+
+        document.getElementById('subtotalVenta').innerText = '$' + totalSubtotalVenta.toFixed(2);
+        document.getElementById('ivaVenta').innerText = '$' + iva.toFixed(2);
+        document.getElementById('totalVenta').innerText = '$' + total.toFixed(2);
+    }
+
+    function updateDiagnosticBox(avgMargin, paymentMethod) {
+        const diagBox = document.getElementById('diagnosticBox');
+        diagBox.className = 'diagnostic-box';
+
+        let html = `<strong>📊 Diagnóstico Comercial del Margen (Modo Manual):</strong><br>`;
+
+        if (avgMargin < 8) {
+            diagBox.classList.add('diag-red');
+            html += `⚠️ <strong>Margen Crítico o Muy Bajo (${avgMargin.toFixed(2)}%):</strong> El margen aplicado es inferior al 8%. Existe un riesgo elevado de no cubrir costos operativos, fletes o reservas de garantía. ${paymentMethod !== 'transferencia' ? 'Especialmente riesgoso considerando la forma de pago elegida.' : ''}`;
+        } else if (avgMargin >= 8 && avgMargin <= 25) {
+            diagBox.classList.add('diag-green');
+            html += `✅ <strong>Margen Saludable y Competitivo (${avgMargin.toFixed(2)}%):</strong> El margen ingresado se encuentra dentro del rango promedio óptimo para la comercialización de tecnología en mercado B2B y B2C. Cubre gastos operativos y mantiene precios atractivos.`;
+        } else if (avgMargin > 25 && avgMargin <= 45) {
+            diagBox.classList.add('diag-yellow');
+            html += `⚠️ <strong>Margen Moderadamente Elevado (${avgMargin.toFixed(2)}%):</strong> Recomendado para servicios o licencias de software. Si estás cotizando únicamente hardware físico, este margen podría reducir la competitividad frente a ofertas de otros distribuidores.`;
+        } else {
+            diagBox.classList.add('diag-red');
+            html += `🚨 <strong>Margen Sobreinflado (${avgMargin.toFixed(2)}%):</strong> Un margen superior al 45% sobre hardware suele estar fuera de rango de mercado. Verifique que no se trate de un error de tipeo en las celdas manuales.`;
+        }
+
+        diagBox.innerHTML = html;
+    }
+
+    function saveSnapshot() {
+        const state = {
+            mode: currentMode,
+            quoteNum: document.getElementById('quoteNum').value,
+            ruc: document.getElementById('ruc').value,
+            atencion: document.getElementById('atencion').value,
+            fecha: document.getElementById('fecha').value,
+            direccion: document.getElementById('direccion').value,
+            validezOferta: document.getElementById('validezOferta').value,
+            tiempoEntrega: document.getElementById('tiempoEntrega').value,
+            garantiaTexto: document.getElementById('garantiaTexto').value,
+            payment: document.querySelector('input[name="payment"]:checked').value,
+            rows: []
+        };
+
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            state.rows.push({
+                parte: row.querySelector('.parte-val').value,
+                desc: row.querySelector('.desc-val').value,
+                tipo: row.querySelector('.tipo-val').value,
+                cant: row.querySelector('.cant-val').value,
+                dist: row.querySelector('.dist-val').value,
+                flete: row.querySelector('.flete-val').value,
+                margin: row.querySelector('.margin-input').value
+            });
+        });
+
+        if (historyStack.length > 0) {
+            const lastState = historyStack[historyStack.length - 1];
+            if (JSON.stringify(lastState) === JSON.stringify(state)) return;
+        }
+
+        historyStack.push(state);
+    }
+
+    function undo() {
+        if (historyStack.length <= 1) {
+            alert("No hay acciones recientes para deshacer.");
+            return;
+        }
+
+        historyStack.pop();
+        const previousState = historyStack[historyStack.length - 1];
+
+        currentMode = previousState.mode;
+        document.getElementById('btnAuto').classList.toggle('active', currentMode === 'auto');
+        document.getElementById('btnManual').classList.toggle('active', currentMode === 'manual');
+        document.getElementById('diagnosticBox').style.display = (currentMode === 'manual') ? 'block' : 'none';
+
+        document.getElementById('quoteNum').value = previousState.quoteNum;
+        document.getElementById('ruc').value = previousState.ruc;
+        document.getElementById('atencion').value = previousState.atencion;
+        document.getElementById('fecha').value = previousState.fecha;
+        document.getElementById('direccion').value = previousState.direccion;
+        document.getElementById('validezOferta').value = previousState.validezOferta;
+        document.getElementById('tiempoEntrega').value = previousState.tiempoEntrega;
+        document.getElementById('garantiaTexto').value = previousState.garantiaTexto;
+
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            radio.checked = (radio.value === previousState.payment);
+        });
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        previousState.rows.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="input-table parte-val" value="${r.parte}" onchange="saveSnapshot()"></td>
+                <td><input type="text" class="input-table desc-val" value="${r.desc}" onchange="saveSnapshot()"></td>
+                <td>
+                    <select class="input-table tipo-val" onchange="calculateQuote(); saveSnapshot();">
+                        <option value="hardware" ${r.tipo === 'hardware' ? 'selected' : ''}>Hardware</option>
+                        <option value="software" ${r.tipo === 'software' ? 'selected' : ''}>Software</option>
+                        <option value="servicio" ${r.tipo === 'servicio' ? 'selected' : ''}>Servicio</option>
+                    </select>
+                </td>
+                <td><input type="number" class="input-table cant-val number-col" value="${r.cant}" min="1" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+                <td class="col-dist"><input type="number" class="input-table dist-val number-col" value="${r.dist}" step="0.01" min="0" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+                <td class="col-flete"><input type="number" class="input-table flete-val number-col" value="${r.flete}" step="0.01" min="0" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+                <td class="col-margen"><input type="number" class="input-table margin-input number-col" value="${r.margin}" step="0.5" oninput="calculateQuote()" onchange="saveSnapshot()"></td>
+                <td class="number-col unit-cell" style="font-weight: bold;">$0.00</td>
+                <td class="number-col subtotal-cell" style="font-weight: bold;">$0.00</td>
+                <td class="col-action no-print"><button class="btn btn-danger" onclick="removeRow(this)">X</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        calculateQuote();
+    }
+
+    function triggerPrint() {
+        window.print();
+    }
+</script>
+
+</body>
+</html>
